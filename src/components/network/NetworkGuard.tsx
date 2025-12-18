@@ -1,6 +1,5 @@
 import { useCurrentAccount, useDisconnectWallet } from "@mysten/dapp-kit";
-import { ReactNode, useMemo } from "react";
-import { useContext } from "react";
+import { ReactNode, useMemo, useContext } from "react";
 import { AppContext } from "@/context/AppContext";
 import { RetroCard } from "@/components/ui/retro-card";
 import { RetroButton } from "@/components/ui/retro-button";
@@ -81,7 +80,7 @@ export const NetworkGuard = ({
                   <span className="text-gray-400 font-bold mr-2">[US 1-2]</span>
                   <span className="text-black font-bold">Address Lookup</span>
                   <span className="mx-2">—</span>
-                  Query any address's full token portfolio
+                  Query any address&apos;s full token portfolio
                 </li>
               </ul>
             </div>
