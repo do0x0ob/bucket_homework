@@ -1,8 +1,7 @@
+import type { Network, RpcNode } from "@/types";
+
 export function getRpcNodes(network: Network): RpcNode[] {
-  const suiscanRpc =
-    network === "devnet"
-      ? "https://suiscan.xyz/api/sui/devnet/"
-      : `https://rpc-${network}.suiscan.xyz/`;
+  const suiscanRpc = `https://rpc-${network}.suiscan.xyz/`;
 
   return [
     {

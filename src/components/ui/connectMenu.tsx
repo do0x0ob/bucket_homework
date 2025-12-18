@@ -12,11 +12,13 @@ import {
   DropdownMenuGroup,
 } from "./dropdown-menu";
 import { useMemo } from "react";
-import useMeidaSize from "@/hooks/useMediaSize";
+import useMediaSize from "@/hooks/useMediaSize";
 import { ClipboardCopyIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import RpcMenu from "./rpcMenu";
 import NetworkMenu from "./networkMenu";
+
+import { useUserStore } from "@/stores/useUserStore";
 
 const ConnectMenu = ({
   walletAddress,
@@ -25,7 +27,8 @@ const ConnectMenu = ({
   walletAddress: string;
   suiName: string | undefined | null;
 }) => {
-  const screenWidth = useMeidaSize();
+  const { network } = useUserStore();
+  const screenWidth = useMediaSize();
   const isDesktop = screenWidth >= 1280;
   const { mutate: disconnectWallet } = useDisconnectWallet();
 
@@ -47,27 +50,25 @@ const ConnectMenu = ({
 
   return (
     <DropdownMenu>
-      {/* Trigger */}
-      <DropdownMenuTrigger className="h-full px-5 py-4 rounded-xl flex items-center gap-2 bg-white/20 outline-none ring-0 xl:button-animate-105">
-        <div className={cn("w-3 aspect-square rounded-[50%] bg-blue-300")} />
-        <span className="text-sm">{displayName ? displayName : "Connect"}</span>
+      <DropdownMenuTrigger 
+        className="h-fit border-2 border-black bg-[#f4d03f] px-4 py-2 font-semibold text-sm uppercase tracking-wider outline-none ring-0 transition-all duration-150 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:bg-[#f7d94c]"
+        style={{ boxShadow: "2px 2px 0px 0px #000" }}
+      >
+        <div className="flex items-center gap-2">
+          <div className={cn("w-3 aspect-square border border-black bg-[#52b788]")} />
+          <span className="text-black">{displayName ? displayName : "Connect"}</span>
+        </div>
       </DropdownMenuTrigger>
-      {/* Content */}
       <DropdownMenuContent
         align={"end"}
-        className="relative flex w-40 flex-col items-center bg-white/20 border-none overflow-hidden"
+        className="relative flex w-48 flex-col items-center bg-[#f5f5f0] border-2 border-black overflow-hidden p-2"
+        style={{ boxShadow: "4px 4px 0px 0px #000" }}
       >
-        <div
-          className="absolute top-0 left-0 w-full h-full -z-[1] backdrop-blur-md"
-          style={{
-            WebkitBackdropFilter: "blur(12px)",
-          }}
-        />
-        <DropdownMenuGroup className="w-full p-0 m-0">
-          {/* Copy Address */}
-          <DropdownMenuItem className="DropdownMenuItem w-full">
+        <DropdownMenuGroup className="w-full p-0 m-0 space-y-1">
+          <DropdownMenuItem className="DropdownMenuItem w-full p-0">
             <button
-              className="w-full flex items-center justify-start gap-2 rounded-lg px-2 py-2 text-black hover:bg-main-700 hover:text-white"
+              className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-semibold uppercase tracking-wider text-black border-2 border-black bg-white hover:bg-[#f4d03f] transition-all duration-150 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+              style={{ boxShadow: "2px 2px 0px 0px #000" }}
               onClick={() => {
                 window.navigator.clipboard.writeText(walletAddress);
                 toast.info("Your address copied to clipboard");
@@ -75,37 +76,35 @@ const ConnectMenu = ({
             >
               <ClipboardCopyIcon
                 strokeWidth={2}
-                className="h-4 w-4 text-white"
+                className="h-4 w-4 text-black"
               />
-              <span className="text-sm text-white">Copy Address</span>
+              <span>Copy Address</span>
             </button>
           </DropdownMenuItem>
-          {/* Explorer */}
-          <DropdownMenuItem className="DropdownMenuItem w-full">
+          <DropdownMenuItem className="DropdownMenuItem w-full p-0">
             <Link
-              href={`https://suivision.xyz/account/${walletAddress}`}
+              href={`https://suivision.xyz/account/${walletAddress}?network=${network?.toLowerCase()}`}
               target="_blank"
               className="w-full"
             >
-              <button className="w-full flex items-center justify-start gap-2 rounded-lg px-2 py-2 text-black hover:bg-main-700 hover:text-white">
-                <SlMagnifier strokeWidth={2} className="h-4 w-4 text-white" />
-                <span className="text-sm text-white">Explorer</span>
+              <button className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-semibold uppercase tracking-wider text-black border-2 border-black bg-white hover:bg-[#52b788] transition-all duration-150 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                style={{ boxShadow: "2px 2px 0px 0px #000" }}
+              >
+                <SlMagnifier strokeWidth={2} className="h-4 w-4 text-black" />
+                <span>Explorer</span>
               </button>
             </Link>
           </DropdownMenuItem>
-          {/* Network Setting */}
           <NetworkMenu />
-          {/* RPC Setting */}
           <RpcMenu />
-          {/* <DropdownMenuSeparator className="bg-white h-[1px] w-full m-0 p-0" /> */}
-          {/* Disconnect */}
-          <DropdownMenuItem className="DropdownMenuItem w-full">
+          <DropdownMenuItem className="DropdownMenuItem w-full p-0">
             <button
-              className="w-full flex items-center justify-start gap-2 rounded-lg px-2 py-2 text-black hover:bg-main-700 hover:text-white"
+              className="w-full flex items-center justify-start gap-2 px-3 py-2 text-sm font-semibold uppercase tracking-wider text-white border-2 border-black bg-[#d62828] hover:bg-[#e63946] transition-all duration-150 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+              style={{ boxShadow: "2px 2px 0px 0px #000" }}
               onClick={() => disconnectWallet()}
             >
               <BiExit strokeWidth={1} className="h-4 w-4 text-white" />
-              <span className="text-sm text-white">Disconnect</span>
+              <span>Disconnect</span>
             </button>
           </DropdownMenuItem>
         </DropdownMenuGroup>

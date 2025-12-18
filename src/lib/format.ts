@@ -1,5 +1,7 @@
 export type Notation = "standard" | "scientific" | "engineering" | "compact";
 
+const SUI_DECIMALS = 9;
+
 export function formatNumber(
   number: number,
   precision = 2,
@@ -8,7 +10,6 @@ export function formatNumber(
   notation: Notation = "compact"
 ) {
   const roundedNumber = Number(number).toFixed(precision);
-  // TODO: internationalization
   const formatter = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: minFractionDigits,
     maximumFractionDigits: maxFractionDigits,
@@ -70,6 +71,18 @@ export const formatBigInt = (mist: bigint, decimal: number): string => {
 };
 
 
-export const shortenAddress = (address: string) => {
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+export const shortenAddress = (address: string, startLength = 4, endLength = 4) => {
+  if (address.length <= startLength + endLength) {
+    return address;
+  }
+  return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
 };
+
+export const truncateAddress = (address: string) => {
+  return shortenAddress(address, 8, 6);
+};
+
+export function formatTokenBalance(balance: string, decimals: number = SUI_DECIMALS): string {
+  const amount = Number(balance) / Math.pow(10, decimals);
+  return formatNumber(amount, 2, 2, 2, "standard");
+}

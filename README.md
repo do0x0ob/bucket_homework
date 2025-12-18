@@ -1,64 +1,22 @@
-# Sui dApp Frontend Scaffold
+# Bucket Homework
 
-Your super kit to build dApp on Sui
-
-This project provides a frontend scaffold for a decentralized application (dApp) on the Sui blockchain. It uses next.js page router, shadcn/ui for UI library, @mysten/dapp-kit for interacting with Sui contracts, and bucket-protocol-SDK for additional blockchain interactions.
-
-<img width="1512" alt="image" src="https://github.com/Bucket-Protocol/sui-dapp-scaffold-v1/assets/50972884/7ba8fa56-e0e7-4f4f-a8ee-75a97688b18c">
-
-Powered by Bucket Protocol.
-
-## Packages
-* [next.js](https://nextjs.org/): Utilized for the foundational framework, supporting SSR and optimized page routing.
-* [tailwind](https://tailwindcss.com/): Rapidly build modern websites without ever leaving your HTML.
-* [shadcn/ui](https://ui.shadcn.com/): Beautifully designed components that you can copy and paste into your apps. Accessible. Customizable. Open Source.
-* [@mysten/dapp-kit](https://www.npmjs.com/package/@mysten/dapp-kit): Provides hooks and components for querying data from the Sui blockchain, and connecting to Sui wallets.
-* [bucket-protocol-sdk](https://github.com/Bucket-Protocol/bucket-protocol-sdk): Enhances capabilities with Sui blockchain features.
+A minimalist Sui blockchain interaction hub. Built on top of the [Bucket Sui DApp Scaffold](https://github.com/Bucket-Protocol/sui-dapp-scaffold-v1) for the Bucket Protocol assessment.
 
 ## Features
 
-* Headless, fully customizable UI component
-* Save 80% of the initial setting time. You can build your project/product way faster
+### Mainnet
+- **Wallet Connection** `[UserStory 1-1]`: Multi-wallet support (Slush, Binance, etc.) via Sui DappKit. Displays SUI balance and address.
+- **Address Lookup** `[UserStory 1-2]`: NodeJS API to query any address's full token portfolio (SUI + Altcoins) via Sui RPC.
 
-## Components
-* Basic series
-  * BasicDataField
-    ```Typescript
-    import BasicDataField from "@/components/fields/basicDataField";
-    
-    <BasicDataField
-      label="Your Wallet Balance"
-      value={userBalance ?? "0.0000"}
-      spaceWithUnit
-      unit="SUI"
-      minFractionDigits={0}
-    />
-    ```
-    <img width="165" alt="image" src="https://github.com/Bucket-Protocol/sui-dapp-scaffold-v1/assets/50972884/8a900e28-7576-43d8-9f57-1655ee96adc3">
+### Testnet
+- **Object Inspector** `[UserStory 3]`: Direct state reading of static contract object (`0xee...e45`) to fetch Admin, ID, and Balance info.
+- **Transaction Sender** `[UserStory 4]`: Frontend-signed SUI transfers with real-time TX hash and explorer integration.
 
-  * BasicInputField
-    ```Typescript
-    import BasicInputField from "@/components/fields/basicInputField";
-    
-    <BasicInputField
-      label="Input"
-      inputValue={value}
-      setInputValue={setInputValue}
-      tokenInfo={["SUI", "BUCK", "USDC", "USDT"]}
-      canSelectToken={true}
-      selectedToken={selectedToken}
-      setSelectedToken={setSelectedToken}
-      maxValue={0.0}
-    />
-    ```
-    <img width="1202" alt="image" src="https://github.com/Bucket-Protocol/sui-dapp-scaffold-v1/assets/50972884/b6e23e4b-2369-498e-a409-9e5821ccf8d6">
-* ConnectMenu
-  ```Typescript
-  import ConnectMenu from "@/components/ui/connectMenu";
+## Quick Start
 
-  <ConnectMenu walletAddress={walletAddress} suiName={suiName} />
-  ```
-  <img width="315" alt="image" src="https://github.com/Bucket-Protocol/sui-dapp-scaffold-v1/assets/50972884/e05dcae4-c163-4251-b413-e97bc226c9e9">
+```bash
+pnpm install
+pnpm dev
+```
 
-* MetaTagsContainer
-  * Open graph metadata is a key point for a web app. Most common settings are gathered in this component.
+Visit `http://localhost:3000`.

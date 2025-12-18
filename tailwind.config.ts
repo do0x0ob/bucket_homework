@@ -15,6 +15,10 @@ const config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "Courier New", "monospace"],
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

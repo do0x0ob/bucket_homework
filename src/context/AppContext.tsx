@@ -1,37 +1,29 @@
-import { useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
-import { PropsWithChildren, createContext, useEffect, useMemo } from "react";
+import { useCurrentAccount } from "@mysten/dapp-kit";
+import { PropsWithChildren, createContext, useMemo } from "react";
 import { useResolveSuiNSName } from "@mysten/dapp-kit";
 
-interface IAppContextProps {
+interface AppContextValue {
   walletAddress: string | undefined;
   suiName: string | null | undefined;
 }
 
-export const AppContext = createContext<IAppContextProps>({
+export const AppContext = createContext<AppContextValue>({
   walletAddress: undefined,
   suiName: undefined,
 });
 
-export const AppContextProvider = (props: PropsWithChildren) => {
-  const client = useSuiClient();
+export const AppContextProvider = ({ children }: PropsWithChildren) => {
   const account = useCurrentAccount();
-
-  const walletAddress = useMemo(() => {
-    return account?.address;
-  }, [account]);
-
+  const walletAddress = useMemo(() => account?.address, [account]);
   const { data: suiName } = useResolveSuiNSName(walletAddress);
 
-  return (
-    <>
-      <AppContext.Provider
-        value={{
-          walletAddress,
-          suiName,
-        }}
-      >
-        {props.children}
-      </AppContext.Provider>
-    </>
+  const value = useMemo(
+    () => ({
+      walletAddress,
+      suiName,
+    }),
+    [walletAddress, suiName]
   );
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

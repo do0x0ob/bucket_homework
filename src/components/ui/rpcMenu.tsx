@@ -4,105 +4,57 @@ import {
   DropdownMenuSubContent,
   DropdownMenuItem,
 } from "./dropdown-menu";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useUserStore } from "@/stores/useUserStore";
-import { NetworkIcon, Hexagon } from "lucide-react";
+import { Hexagon } from "lucide-react";
 import { getRpcNodes } from "@/constants/rpcNodeList";
-import { Link } from "lucide-react";
-
-const network = "mainnet";
+import { useRpcLatency } from "@/hooks/useRpcLatency";
+import type { Network } from "@/types";
 
 const RpcMenu = () => {
-  const [timer, setTimer] = useState<NodeJS.Timeout>();
-  const [rpcNodes, setRpcNodes] = useState<RpcNode[]>(getRpcNodes(network));
-  const { rpcUrl, setRpcUrl } = useUserStore();
-
-  useEffect(() => {
-    loadLatencies();
-  }, []);
-
-  const onOpenChange = (isOpen: boolean) => {
-    if (isOpen) {
-      const interval = setInterval(() => {
-        loadLatencies();
-      }, 3000);
-
-      setTimer(interval);
-      return () => clearInterval(interval);
-    } else {
-      if (timer) {
-        clearInterval(timer);
-      }
-    }
-  };
-
-  const loadLatency = async (rpcNode: RpcNode) => {
-    try {
-      const startTs = new Date().getTime();
-      const ret = await fetch(`${rpcNode.url}`, {
-        method: "POST",
-        body: `{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":[]}`,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      // await ret.json();
-      const endTs = new Date().getTime();
-
-      const latency = endTs - startTs;
-      setRpcNodes((t) =>
-        t.map((t) => {
-          if (t.name == rpcNode.name) {
-            t.latency = latency;
-          }
-
-          return t;
-        }),
-      );
-    } catch (ex) {
-      console.log("ex", ex);
-      return undefined;
-    }
-  };
-
-  const loadLatencies = async () => {
-    await Promise.all(getRpcNodes(network).map((t) => loadLatency(t)));
-  };
+  const { rpcUrl, setRpcUrl, network } = useUserStore();
+  const [isOpen, setIsOpen] = useState(false);
+  const rpcNodes = getRpcNodes(network as Network);
+  const nodesWithLatency = useRpcLatency(rpcNodes, isOpen);
 
   return (
-    <DropdownMenuSub onOpenChange={onOpenChange}>
-      <DropdownMenuSubTriggerLeft className="w-full h-12 flex items-center justify-between rounded-lg pl-3.5 pr-2 py-2 text-black hover:bg-main-700 hover:text-white">
-        <Hexagon strokeWidth={2} className="h-4 w-4 text-white mr-2" />
-        <span className="text-sm text-white">RPC Setting</span>
+    <DropdownMenuSub onOpenChange={setIsOpen}>
+      <DropdownMenuSubTriggerLeft className="w-full h-fit flex items-center justify-between px-3 py-2 text-sm font-semibold uppercase tracking-wider text-black border-2 border-black bg-white hover:bg-[#f4d03f] transition-all duration-150 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+        style={{ boxShadow: "2px 2px 0px 0px #000" }}
+      >
+        <div className="flex items-center gap-2">
+          <Hexagon strokeWidth={2} className="h-4 w-4 text-black" />
+          <span>RPC Setting</span>
+        </div>
       </DropdownMenuSubTriggerLeft>
       <DropdownMenuSubContent
         sideOffset={8}
         alignOffset={8}
-        className="relative w-44 bg-white/20 border-none"
+        className="relative w-48 bg-[#f5f5f0] border-2 border-black p-2"
+        style={{ boxShadow: "4px 4px 0px 0px #000" }}
       >
-        <div
-          className="absolute top-0 left-0 w-full h-full -z-[1] backdrop-blur-md"
-          style={{
-            WebkitBackdropFilter: "blur(12px)",
-          }}
-        />
-        {rpcNodes.map((rpcNode, idx) => (
+        {nodesWithLatency.map((rpcNode, idx) => (
           <DropdownMenuItem
-            className="w-full"
+            className="w-full p-0 mb-1 last:mb-0"
             key={`rpc-node-${rpcNode.name}-${idx}`}
           >
             <button
-              className={`w-full flex items-center justify-between rounded-lg px-1 py-1 text-black hover:bg-main-700 hover:text-white ${
-                rpcNode.url == rpcUrl ? "" : "opacity-50"
+              className={`w-full flex items-center justify-between px-3 py-2 text-sm font-semibold uppercase tracking-wider border-2 border-black transition-all duration-150 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${
+                rpcNode.url === rpcUrl 
+                  ? "bg-[#52b788] text-black hover:bg-[#6bc99a]" 
+                  : "bg-white text-black hover:bg-[#f4d03f] opacity-70"
               }`}
+              style={{ boxShadow: "2px 2px 0px 0px #000" }}
               onClick={() => {
                 setRpcUrl(rpcNode.url);
               }}
             >
-              <span className="sm:text-sm text-white">{rpcNode.name}</span>
+              <span className="font-mono text-xs">{rpcNode.name}</span>
               <div className="flex gap-1 items-center">
-                <div className="w-2 h-2 rounded-full bg-blue-300" />
-                <span className="text-xs text-white">{rpcNode.latency}ms</span>
+                <div className={`w-2 h-2 border border-black ${
+                  rpcNode.latency === undefined ? "bg-gray-300" : rpcNode.latency < 100 ? "bg-[#52b788]" : rpcNode.latency < 300 ? "bg-[#f4d03f]" : "bg-[#d62828]"
+                }`} />
+                <span className="text-xs font-mono text-black">{rpcNode.latency !== undefined ? `${rpcNode.latency}ms` : "--- ms"}</span>
               </div>
             </button>
           </DropdownMenuItem>

@@ -1,1 +1,3 @@
-export const NETWROK_LIST = ["mainnet", "testnet", "devnet"];
+import type { Network } from "@/types";
+
+export const NETWORK_LIST: Network[] = ["mainnet", "testnet"];
