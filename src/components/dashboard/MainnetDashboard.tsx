@@ -19,6 +19,7 @@ export const MainnetDashboard = () => {
     setLookupAddress,
     lookupBalances,
     isLoading: isLookupLoading,
+    hasSearched,
     handleLookup,
   } = useAddressLookup();
 
@@ -28,7 +29,6 @@ export const MainnetDashboard = () => {
     if (!hideZeroBalance) return lookupBalances;
     return lookupBalances.filter((item) => {
       const isSUI = item.coinType === "0x2::sui::SUI";
-      // Remove commas before converting to Number to handle formatted strings like "1,000.00"
       const balanceValue = Number(item.balance.replace(/,/g, ""));
       return isSUI || (!isNaN(balanceValue) && balanceValue > 0);
     });
@@ -97,6 +97,18 @@ export const MainnetDashboard = () => {
             </div>
           </div>
 
+          {!isLookupLoading && hasSearched && lookupBalances.length === 0 && (
+            <div className="mt-6 p-10 border-2 border-dashed border-black bg-white flex flex-col items-center justify-center text-center">
+              <div className="text-4xl mb-4">📭</div>
+              <h3 className="text-lg font-bold uppercase tracking-wider text-black">
+                No Results Found
+              </h3>
+              <p className="text-sm text-gray-500 font-mono mt-2">
+                This address has no assets or does not exist.
+              </p>
+            </div>
+          )}
+
           {lookupBalances.length > 0 && (
             <div className="mt-6">
               <div className="text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2 flex items-center justify-between">
@@ -130,26 +142,34 @@ export const MainnetDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredBalances.map((item, index) => {
-                      const isSUI = item.coinType === "0x2::sui::SUI";
-                      return (
-                        <tr
-                          key={index}
-                          className={`${
-                            isSUI
-                              ? "bg-[#52b788] hover:bg-[#6bc99a]"
-                              : "bg-white even:bg-gray-50 hover:bg-gray-100"
-                          }`}
-                        >
-                          <td className="border-2 border-black px-4 py-2 text-black break-all text-xs">
-                            {item.coinType}
-                          </td>
-                          <td className={`border-2 border-black px-4 py-2 text-right ${isSUI ? "font-bold" : ""} text-black`}>
-                            {item.balance}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {filteredBalances.length > 0 ? (
+                      filteredBalances.map((item, index) => {
+                        const isSUI = item.coinType === "0x2::sui::SUI";
+                        return (
+                          <tr
+                            key={index}
+                            className={`${
+                              isSUI
+                                ? "bg-[#52b788] hover:bg-[#6bc99a]"
+                                : "bg-white even:bg-gray-50 hover:bg-gray-100"
+                            }`}
+                          >
+                            <td className="border-2 border-black px-4 py-2 text-black break-all text-xs">
+                              {item.coinType}
+                            </td>
+                            <td className={`border-2 border-black px-4 py-2 text-right ${isSUI ? "font-bold" : ""} text-black`}>
+                              {item.balance}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={2} className="border-2 border-black px-4 py-8 text-center text-gray-500 italic bg-white">
+                          No tokens matching the filter criteria
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

@@ -3,6 +3,7 @@ import { useSuiClient, useSignAndExecuteTransaction, useCurrentAccount } from "@
 import { Transaction } from "@mysten/sui/transactions";
 
 const SUI_DECIMALS = 9;
+const ESTIMATED_GAS_BUDGET = 0.01;
 
 export function useSendTransaction() {
   const client = useSuiClient();
@@ -36,6 +37,21 @@ export function useSendTransaction() {
       setError(null);
       setTxHash("");
 
+      const balanceData = await client.getBalance({
+        owner: account.address,
+      });
+      
+      const balanceInSui = parseFloat(balanceData.totalBalance) / Math.pow(10, SUI_DECIMALS);
+      const requiredAmount = amountNum + ESTIMATED_GAS_BUDGET;
+
+      if (balanceInSui < requiredAmount) {
+        const errorMsg = `Insufficient balance! Current balance: ${balanceInSui.toFixed(4)} SUI, Required: ${requiredAmount.toFixed(4)} SUI (including ${ESTIMATED_GAS_BUDGET} SUI estimated gas fee)`;
+        setError(errorMsg);
+        setTxHash(`Error: ${errorMsg}`);
+        setIsSending(false);
+        return;
+      }
+
       const amountInMist = Math.floor(amountNum * Math.pow(10, SUI_DECIMALS));
       const tx = new Transaction();
       const [coin] = tx.splitCoins(tx.gas, [amountInMist]);
@@ -63,7 +79,20 @@ export function useSendTransaction() {
           },
           onError: (err: any) => {
             console.error("Transaction error:", err);
-            const errorMessage = err?.message || "Transaction failed";
+            let errorMessage = "Transaction failed";
+            
+            if (err?.message) {
+              if (err.message.includes("Insufficient")) {
+                errorMessage = "Insufficient balance to complete transaction";
+              } else if (err.message.includes("Invalid")) {
+                errorMessage = "Invalid transaction parameters";
+              } else if (err.message.includes("rejected")) {
+                errorMessage = "User rejected the transaction";
+              } else {
+                errorMessage = `Transaction failed: ${err.message}`;
+              }
+            }
+            
             setError(errorMessage);
             setTxHash(`Error: ${errorMessage}`);
           },
@@ -71,7 +100,16 @@ export function useSendTransaction() {
       );
     } catch (err: any) {
       console.error("Error sending transaction:", err);
-      const errorMessage = err?.message || "Failed to send transaction";
+      let errorMessage = "Failed to send transaction";
+      
+      if (err?.message) {
+        if (err.message.includes("balance") || err.message.includes("Insufficient")) {
+          errorMessage = "Insufficient balance to complete transaction";
+        } else {
+          errorMessage = `Failed to send transaction: ${err.message}`;
+        }
+      }
+      
       setError(errorMessage);
       setTxHash(`Error: ${errorMessage}`);
     } finally {

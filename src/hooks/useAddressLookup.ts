@@ -8,6 +8,7 @@ export function useAddressLookup() {
   const [lookupAddress, setLookupAddress] = useState<string>("");
   const [lookupBalances, setLookupBalances] = useState<TokenBalance[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleLookup = async (address: string, rpcUrl: string) => {
@@ -17,6 +18,7 @@ export function useAddressLookup() {
 
     try {
       setIsLoading(true);
+      setHasSearched(true);
       setError(null);
       setLookupBalances([]);
 
@@ -63,6 +65,7 @@ export function useAddressLookup() {
     setLookupAddress,
     lookupBalances,
     isLoading,
+    hasSearched,
     error,
     handleLookup,
   };

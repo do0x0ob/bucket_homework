@@ -15,7 +15,7 @@ const OBJECT_ID = "0xeeb34a78eaf4ae873c679db294296778676de4a335f222856716d1ad6ed
 export const TestnetPlayground = () => {
   const { rpcUrl, network } = useUserStore();
   const { objectData, isLoading: isLoadingObject } = useObjectData(rpcUrl, OBJECT_ID);
-  const { txHash, isSending, sendTransaction } = useSendTransaction();
+  const { txHash, isSending, error, sendTransaction } = useSendTransaction();
   
   const [sendToAddress, setSendToAddress] = useState<string>("");
   const [sendAmount, setSendAmount] = useState<string>("");
@@ -122,20 +122,25 @@ export const TestnetPlayground = () => {
             {isSending ? "Sending..." : "Send SUI"}
           </RetroButton>
 
-          {txHash && (
+          {(txHash || error) && (
             <div className="mt-4">
-              <RetroCodeBlock title="Transaction Hash">
-                {txHash.startsWith("Error:") ? (
+              <RetroCodeBlock title="Transaction Status">
+                {error ? (
+                  <span className="text-red-500">Error: {error}</span>
+                ) : txHash.startsWith("Error:") ? (
                   <span className="text-red-500">{txHash}</span>
                 ) : (
-                  <a
-                    href={getExplorerUrl(txHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#52b788] hover:underline"
-                  >
-                    {txHash}
-                  </a>
+                  <div className="space-y-2">
+                    <div className="text-[#52b788]">Success! Transaction Hash:</div>
+                    <a
+                      href={getExplorerUrl(txHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#52b788] hover:underline break-all block"
+                    >
+                      {txHash}
+                    </a>
+                  </div>
                 )}
               </RetroCodeBlock>
             </div>
