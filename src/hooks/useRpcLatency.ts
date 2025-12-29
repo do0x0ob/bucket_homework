@@ -14,13 +14,23 @@ export function useRpcLatency(rpcNodes: RpcNode[], enabled: boolean = false) {
   const loadLatency = useCallback(async (rpcNode: RpcNode) => {
     try {
       const startTs = Date.now();
-      await fetch(rpcNode.url, {
+      const response = await fetch(rpcNode.url, {
         method: "POST",
-        body: `{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":[]}`,
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "sui_getChainIdentifier",
+          params: [],
+        }),
         headers: {
           "Content-Type": "application/json",
         },
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const endTs = Date.now();
       const latency = endTs - startTs;
 
@@ -31,6 +41,11 @@ export function useRpcLatency(rpcNodes: RpcNode[], enabled: boolean = false) {
       );
     } catch (error) {
       console.warn(`Failed to measure latency for ${rpcNode.name}`, error);
+      setNodes((prev) =>
+        prev.map((node) =>
+          node.name === rpcNode.name ? { ...node, latency: -1 } : node
+        )
+      );
     }
   }, []);
 
@@ -39,9 +54,25 @@ export function useRpcLatency(rpcNodes: RpcNode[], enabled: boolean = false) {
   }, [loadLatency]);
 
   useEffect(() => {
-    nodesRef.current = rpcNodes;
-    setNodes(rpcNodes);
-  }, [nodeUrls, rpcNodes]);
+    setNodes((prev) => {
+      const urlSet = new Set(rpcNodes.map((n) => n.url));
+      const prevUrlSet = new Set(prev.map((n) => n.url));
+      
+      if (
+        urlSet.size === prevUrlSet.size &&
+        [...urlSet].every((url) => prevUrlSet.has(url))
+      ) {
+        nodesRef.current = rpcNodes;
+        return prev.map((prevNode) => {
+          const newNode = rpcNodes.find((n) => n.url === prevNode.url);
+          return newNode ? { ...newNode, latency: prevNode.latency } : prevNode;
+        });
+      }
+      
+      nodesRef.current = rpcNodes;
+      return rpcNodes;
+    });
+  }, [nodeUrls]);
 
   useEffect(() => {
     if (!enabled) {

@@ -52,9 +52,11 @@ const RpcMenu = () => {
               <span className="font-mono text-xs">{rpcNode.name}</span>
               <div className="flex gap-1 items-center">
                 <div className={`w-2 h-2 border border-black ${
-                  rpcNode.latency === undefined ? "bg-gray-300" : rpcNode.latency < 100 ? "bg-[#52b788]" : rpcNode.latency < 300 ? "bg-[#f4d03f]" : "bg-[#d62828]"
+                  rpcNode.latency === undefined || rpcNode.latency < 0 ? "bg-gray-300" : rpcNode.latency < 100 ? "bg-[#52b788]" : rpcNode.latency < 300 ? "bg-[#f4d03f]" : "bg-[#d62828]"
                 }`} />
-                <span className="text-xs font-mono text-black">{rpcNode.latency !== undefined ? `${rpcNode.latency}ms` : "--- ms"}</span>
+                <span className="text-xs font-mono text-black">
+                  {rpcNode.latency === undefined || rpcNode.latency < 0 ? "--- ms" : `${rpcNode.latency}ms`}
+                </span>
               </div>
             </button>
           </DropdownMenuItem>
